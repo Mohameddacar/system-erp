@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////////
+// ENUMS
+//////////////////////////
+
+enum Role {
+  ADMIN
+  FINANCE
+  OPERATION
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum CustomerType {
+  XANAANO
+  SCHOOL
+  INDIVIDUAL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+//////////////////////////
+// USERS TABLE
+//////////////////////////
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  role      Role     @default(USER)
+  resetToken String?
+  resetExpiry DateTime?
+  createdAt DateTime @default(now())
+}
+
+//////////////////////////
+// CUSTOMERS TABLE
+//////////////////////////
+
+model Customer {
+  id             String        @id @default(uuid())
+  name           String
+  phone          String?
+  email          String?
+  type           CustomerType
+  contactPerson  String?
+  city           String?
+  status         UserStatus    @default(ACTIVE)
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+//////////////////////////
+// DEPARTMENTS TABLE
+//////////////////////////
+
+model Department {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  description String?
+
+  employees   Employee[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+//////////////////////////
+// EMPLOYEES TABLE
+//////////////////////////
+
+model Employee {
+  id             String          @id @default(uuid())
+  fullName       String
+  gender         Gender
+  email          String?         @unique
+  phone          String?
+  salary         Float?
+  hireDate       DateTime
+  jobTitle       String
+  employmentType EmploymentType
+  status         EmployeeStatus  @default(ACTIVE)
+
+  department     Department      @relation(fields: [deptId], references: [id])
+  deptId         String
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
