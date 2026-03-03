@@ -1,16 +1,25 @@
 "use client"
 
+import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
 export function NavMain({
@@ -21,10 +30,12 @@ export function NavMain({
     title: string
     url: string
     icon?: Icon
+    items?: { title: string; url: string }[]
   }[]
   showQuickCreate?: boolean
 }) {
   const pathname = usePathname()
+  const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({})
 
   return (
     <SidebarGroup>
@@ -53,16 +64,62 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild
-                tooltip={item.title}
-                isActive={pathname === item.url}
-              >
-                <Link href={item.url}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
+              {item.items?.length ? (
+                (() => {
+                  const isSectionActive =
+                    pathname === item.url || pathname.startsWith(`${item.url}/`)
+                  const hasUserToggled = Object.prototype.hasOwnProperty.call(
+                    openGroups,
+                    item.title
+                  )
+                  const isOpen = hasUserToggled ? openGroups[item.title] : isSectionActive
+
+                  return (
+                <Collapsible
+                  open={Boolean(isOpen)}
+                  onOpenChange={(nextOpen) =>
+                    setOpenGroups((prev) => ({ ...prev, [item.title]: nextOpen }))
+                  }
+                >
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      isActive={isSectionActive}
+                      type="button"
+                    >
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.items.map((sub) => (
+                        <SidebarMenuSubItem key={sub.url}>
+                          <SidebarMenuSubButton asChild isActive={pathname === sub.url}>
+                            <Link href={sub.url}>
+                              <span>{sub.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </Collapsible>
+                  )
+                })()
+              ) : (
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  isActive={pathname === item.url || pathname.startsWith(`${item.url}/`)}
+                >
+                  <Link href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

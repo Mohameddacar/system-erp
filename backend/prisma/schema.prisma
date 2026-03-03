@@ -122,3 +122,82 @@ model Employee {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
+//////////////////////////////////////////////////////
+// 1️⃣ WAREHOUSE
+//////////////////////////////////////////////////////
+
+model Warehouse {
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String?
+  createdAt DateTime @default(now())
+
+  stock     InventoryStock[]
+  movements InventoryMovement[]
+  sales     SalesOrder[]
+}
+
+//////////////////////////////////////////////////////
+// 2️⃣ PRODUCT
+//////////////////////////////////////////////////////
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  sku         String   @unique
+  name        String
+  price       Decimal  @db.Decimal(18,2)
+  createdAt   DateTime @default(now())
+
+  stock       InventoryStock[]
+  movements   InventoryMovement[]
+  salesItems  SalesOrder[]
+}
+
+//////////////////////////////////////////////////////
+// 3️⃣ INVENTORY STOCK (Current Quantity)
+//////////////////////////////////////////////////////
+
+model InventoryStock {
+  id             Int      @id @default(autoincrement())
+  warehouseId    Int
+  productId      Int
+  quantityOnHand Decimal  @db.Decimal(18,4) @default(0)
+
+  warehouse      Warehouse @relation(fields: [warehouseId], references: [id])
+  product        Product   @relation(fields: [productId], references: [id])
+
+  @@unique([warehouseId, productId])
+}
+
+//////////////////////////////////////////////////////
+// 4️⃣ INVENTORY MOVEMENT (Stock Ledger)
+//////////////////////////////////////////////////////
+
+model InventoryMovement {
+  id           Int      @id @default(autoincrement())
+  productId    Int
+  warehouseId  Int
+  movementType String   // PURCHASE | SALE | ADJUSTMENT
+  quantity     Decimal  @db.Decimal(18,4)
+  unitPrice    Decimal? @db.Decimal(18,2)
+  createdAt    DateTime @default(now())
+
+  product      Product   @relation(fields: [productId], references: [id])
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [id])
+}
+
+//////////////////////////////////////////////////////
+// 5️⃣ SALES ORDER (Simple version)
+//////////////////////////////////////////////////////
+
+model SalesOrder {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  warehouseId Int
+  quantity    Decimal  @db.Decimal(18,4)
+  totalAmount Decimal  @db.Decimal(18,2)
+  createdAt   DateTime @default(now())
+
+  product     Product   @relation(fields: [productId], references: [id])
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+}

@@ -50,7 +50,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-type FieldType = "text" | "email" | "number" | "status" | "date"
+type FieldType = "text" | "email" | "number" | "status" | "select" | "date"
 
 export type ModuleField<T> = {
   key: keyof T
@@ -144,6 +144,12 @@ export function ModuleTable<T extends { id: string | number }>({
       tableFields.filter((f) => f.type === "status").map((f) => String(f.key))
     )
 
+    const selectOptionsByKey = new Map(
+      tableFields
+        .filter((f) => f.type === "select" && f.options?.length)
+        .map((f) => [String(f.key), f.options ?? []] as const)
+    )
+
     const base: ColumnDef<T>[] = tableFields.map((f) => ({
       accessorKey: String(f.key),
       header: f.label,
@@ -159,6 +165,14 @@ export function ModuleTable<T extends { id: string | number }>({
               {String(v ?? "")}
             </Badge>
           )
+        }
+
+        const selectOptions = selectOptionsByKey.get(String(f.key))
+        if (selectOptions?.length) {
+          const selected = selectOptions.find(
+            (o) => String(o.value) === String(v ?? "")
+          )
+          return <span className="font-medium">{selected?.label ?? String(v ?? "")}</span>
         }
 
         const isPrimary = tableFields[0]?.key === f.key
@@ -287,7 +301,7 @@ export function ModuleTable<T extends { id: string | number }>({
     const labelId = `field-${String(key)}`
     const value = (draft[key] ?? "") as unknown as string
 
-    if (field.type === "status" && field.options?.length) {
+    if ((field.type === "status" || field.type === "select") && field.options?.length) {
       return (
         <div className="grid gap-2" key={String(key)}>
           <Label htmlFor={labelId}>{field.label}</Label>

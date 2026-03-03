@@ -61,6 +61,13 @@ const NAV_ITEMS = [
     url: "/inventory",
     icon: IconPackage,
     roles: ["ADMIN", "OPERATION"] as UserRole[],
+    items: [
+      { title: "Warehouses", url: "/inventory/warehouses" },
+      { title: "Products", url: "/inventory/products" },
+      { title: "Stock", url: "/inventory/stock" },
+      { title: "Movements", url: "/inventory/movements" },
+      { title: "Sales Orders", url: "/inventory/sales-orders" },
+    ],
   },
   {
     title: "Finance",
@@ -81,6 +88,7 @@ function getNavByRole(role: UserRole) {
     title: item.title,
     url: item.url,
     icon: item.icon,
+    ...(item.items ? { items: item.items } : {}),
   }))
 }
 
