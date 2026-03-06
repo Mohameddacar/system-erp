@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
 export default function Page() {
   const router = useRouter()
@@ -47,61 +45,27 @@ export default function Page() {
             <div className="w-full max-w-md">
               <div className="space-y-2">
                 <div className="text-3xl font-semibold tracking-tight">
-                  Sign up
+                  Create account
                 </div>
                 <div className="text-muted-foreground text-sm">
-                  Create a new username and password.
+                  Accounts are provisioned by an administrator.
                 </div>
               </div>
 
-              <form
-                className="mt-6 space-y-4"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  router.push("/dashboard")
-                }}
-              >
-                <div className="space-y-2">
-                  <Label htmlFor="username">User name</Label>
-                  <Input id="username" name="username" placeholder="yourname" required />
-                </div>
+              <div className="mt-6 space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Please contact your system administrator to create your account.
+                  You will receive a verification email and then a password setup link.
+                </p>
 
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirm">Confirm password</Label>
-                  <Input
-                    id="confirm"
-                    name="confirm"
-                    type="password"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-
-                <Button type="submit" className="w-full">
-                  Create account
+                <Button className="w-full" onClick={() => router.push("/signin")}>
+                  Go to sign in
                 </Button>
 
                 <div className="text-muted-foreground text-center text-sm">
-                  Already have an account?{" "}
-                  <Link
-                    href="/signin"
-                    className="text-foreground hover:underline"
-                  >
-                    Sign in
-                  </Link>
+                  Need help? Contact your admin.
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </CardContent>

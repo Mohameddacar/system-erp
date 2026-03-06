@@ -7,7 +7,7 @@ import { AppShell } from "@/components/app-shell"
 import { canAccessPath, getToken, getUserRole } from "@/lib/auth"
 
 const AUTH_PREFIXES = ["/signin", "/signup", "/forgot-password"]
-const PUBLIC_PREFIXES = ["/unauthorized", "/login"]
+const PUBLIC_PREFIXES = ["/unauthorized", "/login", "/verify-email", "/set-password"]
 
 export function ShellGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

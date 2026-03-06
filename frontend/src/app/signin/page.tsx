@@ -11,19 +11,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   getRoleRedirectPath,
-  ROLE_OPTIONS,
   getToken,
   getUserRole,
   loginUser,
-  logout,
-  type UserRole,
 } from "@/lib/auth"
 
 export default function Page() {
   const router = useRouter()
-  const [username, setUsername] = useState("")
+  const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
-  const [selectedRole, setSelectedRole] = useState<UserRole>("USER")
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -42,14 +38,7 @@ export default function Page() {
     setIsSubmitting(true)
 
     try {
-      const response = await loginUser({ username, password })
-
-      if (response.user.role !== selectedRole) {
-        logout()
-        setError("Role does not match this account. Please choose the correct role.")
-        return
-      }
-
+      const response = await loginUser({ identifier, password })
       router.replace(getRoleRedirectPath(response.user.role))
     } catch (submitError) {
       if (submitError instanceof Error) {
@@ -109,13 +98,13 @@ export default function Page() {
                 onSubmit={handleSubmit}
               >
                 <div className="space-y-2">
-                  <Label htmlFor="username">User name</Label>
+                  <Label htmlFor="identifier">Email or username</Label>
                   <Input
-                    id="username"
-                    name="username"
-                    placeholder="admin"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
+                    id="identifier"
+                    name="identifier"
+                    placeholder="admin@brightmts.local"
+                    value={identifier}
+                    onChange={(event) => setIdentifier(event.target.value)}
                     required
                   />
                 </div>
@@ -141,24 +130,6 @@ export default function Page() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <select
-                    id="role"
-                    name="role"
-                    value={selectedRole}
-                    onChange={(event) => setSelectedRole(event.target.value as UserRole)}
-                    className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                    required
-                  >
-                    {ROLE_OPTIONS.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
                 {error ? (
                   <p className="text-sm text-red-600" role="alert">
                     {error}
@@ -170,13 +141,7 @@ export default function Page() {
                 </Button>
 
                 <div className="text-muted-foreground text-center text-sm">
-                  Don&apos;t have an account?{" "}
-                  <Link
-                    href="/signup"
-                    className="text-foreground hover:underline"
-                  >
-                    Register now
-                  </Link>
+                  Accounts are created by an administrator.
                 </div>
               </form>
             </div>

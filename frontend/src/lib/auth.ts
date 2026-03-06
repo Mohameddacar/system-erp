@@ -1,15 +1,16 @@
 export type UserRole = "ADMIN" | "FINANCE" | "OPERATION" | "USER"
 
 export interface LoginCredentials {
-  username: string
+  identifier: string
   password: string
 }
 
 export interface LoginResponse {
   token: string
   user: {
-    id: number
-    username: string
+    id: string
+    email: string
+    username: string | null
     role: UserRole
   }
 }
@@ -65,7 +66,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<LoginRes
 
     localStorage.setItem(TOKEN_KEY, data.token)
     localStorage.setItem(ROLE_KEY, data.user.role)
-    localStorage.setItem(USERNAME_KEY, data.user.username)
+    localStorage.setItem(USERNAME_KEY, data.user.username ?? data.user.email)
 
     return data as LoginResponse
   } catch (error) {
@@ -113,7 +114,7 @@ export function getRouteGuardRedirect(allowedRoles?: UserRole[]): string | null 
   const token = getToken()
 
   if (!token) {
-    return "/login"
+    return "/signin"
   }
 
   if (!allowedRoles || allowedRoles.length === 0) {

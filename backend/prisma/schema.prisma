@@ -24,6 +24,17 @@ enum Role {
   USER
 }
 
+enum AccountStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  DISABLED
+}
+
+enum TokenType {
+  VERIFY_EMAIL
+  SET_PASSWORD
+}
+
 enum UserStatus {
   ACTIVE
   INACTIVE
@@ -58,13 +69,38 @@ enum EmployeeStatus {
 //////////////////////////
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  role      Role     @default(USER)
-  resetToken String?
-  resetExpiry DateTime?
-  createdAt DateTime @default(now())
+  id            String        @id @default(uuid())
+  email         String        @unique
+  username      String?       @unique
+  fullName      String?       @map("full_name")
+  passwordHash  String?       @map("password_hash")
+  role          Role          @default(USER)
+  status        AccountStatus @default(PENDING_VERIFICATION)
+  emailVerified Boolean       @default(false) @map("email_verified")
+  locked        Boolean       @default(true)
+
+  tokens        UserToken[]
+
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model UserToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash")
+  tokenType TokenType @map("token_type")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("user_tokens")
 }
 
 //////////////////////////

@@ -1,11 +1,27 @@
 import express from "express";
-import { login, forgotPassword } from "../controllers/authController.js";
+import rateLimit from "express-rate-limit";
+import {
+  forgotPassword,
+  login,
+  setPassword,
+  verifyEmail,
+} from "../controllers/authController.js";
 import { protect, authorize } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/login", login);
-router.post("/forgot-password", forgotPassword);
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 25,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." },
+});
+
+router.post("/login", authLimiter, login);
+router.post("/verify-email", authLimiter, verifyEmail);
+router.post("/set-password", authLimiter, setPassword);
+router.post("/forgot-password", authLimiter, forgotPassword);
 
 
 // ===== ROLE TEST ROUTES =====

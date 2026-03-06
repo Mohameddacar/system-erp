@@ -8,6 +8,19 @@ type ApiOptions = {
   body?: unknown;
 };
 
+type AdminUserApiRow = {
+  id: string;
+  email: string;
+  username: string | null;
+  fullName: string | null;
+  role: string;
+  status: string;
+  emailVerified: boolean;
+  locked: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type CustomerApiRow = {
   id: string;
   name: string;
@@ -117,34 +130,62 @@ async function apiRequest<T>(path: string, options: ApiOptions = {}): Promise<T>
 }
 
 export async function getUsers() {
-  return apiRequest<
-    Array<{ id: number; username: string; role: string; createdAt: string }>
-  >("/api/users");
+  return apiRequest<Array<AdminUserApiRow>>("/api/admin/users");
 }
 
 export async function createUser(payload: {
-  username: string;
-  password: string;
   role: string;
+  email: string;
+  fullName?: string;
+  username?: string;
 }) {
-  return apiRequest<{ id: number; username: string; role: string; createdAt: string }>(
-    "/api/users",
-    { method: "POST", body: payload }
-  );
+  return apiRequest<AdminUserApiRow>("/api/admin/users", {
+    method: "POST",
+    body: payload,
+  });
 }
 
 export async function updateUser(
-  id: number,
-  payload: Partial<{ username: string; password: string; role: string }>
+  id: string,
+  payload: Partial<{
+    role: string;
+    status: string;
+    locked: boolean;
+    fullName: string;
+    username: string;
+  }>
 ) {
-  return apiRequest<{ id: number; username: string; role: string; createdAt: string }>(
-    `/api/users/${id}`,
-    { method: "PUT", body: payload }
-  );
+  return apiRequest<AdminUserApiRow>(`/api/admin/users/${id}`, {
+    method: "PUT",
+    body: payload,
+  });
 }
 
-export async function deleteUser(id: number) {
-  return apiRequest<{ message: string }>(`/api/users/${id}`, { method: "DELETE" });
+export async function deleteUser(id: string) {
+  return apiRequest<{ message: string }>(`/api/admin/users/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function verifyEmail(token: string) {
+  return apiRequest<{ message: string }>("/api/auth/verify-email", {
+    method: "POST",
+    body: { token },
+  });
+}
+
+export async function setPassword(token: string, newPassword: string) {
+  return apiRequest<{ message: string }>("/api/auth/set-password", {
+    method: "POST",
+    body: { token, newPassword },
+  });
+}
+
+export async function forgotPassword(identifier: string) {
+  return apiRequest<{ message: string }>("/api/auth/forgot-password", {
+    method: "POST",
+    body: { identifier },
+  });
 }
 
 export async function getCustomers() {

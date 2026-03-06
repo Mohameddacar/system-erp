@@ -8,15 +8,31 @@ async function main() {
   const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
   const user = await prisma.user.upsert({
-    where: { username: "admin" },
-    update: { password: hashedPassword, role: "ADMIN" },
-    create: { username: "admin", password: hashedPassword, role: "ADMIN" },
+    where: { email: "admin@brightmts.local" },
+    update: {
+      username: "admin",
+      passwordHash: hashedPassword,
+      role: "ADMIN",
+      status: "ACTIVE",
+      emailVerified: true,
+      locked: false,
+    },
+    create: {
+      email: "admin@brightmts.local",
+      username: "admin",
+      passwordHash: hashedPassword,
+      role: "ADMIN",
+      status: "ACTIVE",
+      emailVerified: true,
+      locked: false,
+    },
   });
 
   console.log(
     JSON.stringify({
       ok: true,
-      username: user.username,
+      email: user.email,
+      username: user.username ?? "",
       role: user.role,
       passwordForLogin: plainPassword,
     })
